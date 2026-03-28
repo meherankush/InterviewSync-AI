@@ -15,21 +15,21 @@ const Sidebar = ({ onItemClick }) => {
     const location = useLocation();
 
     const menuItems = [
-        { id: 'overview', label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
-        { id: 'start', label: 'New Interview', path: '/dashboard/start', icon: <PlayCircle size={20} /> },
-        { id: 'history', label: 'Past Sessions', path: '/dashboard/history', icon: <History size={20} /> },
-        { id: 'analytics', label: 'My Progress', path: '/dashboard/analytics', icon: <BarChart3 size={20} /> },
-        { id: 'reports', label: 'Full Reports', path: '/dashboard/reports', icon: <FileText size={20} /> },
-        { id: 'alerts', label: 'Rules Check', path: '/dashboard/alerts', icon: <ShieldAlert size={20} /> },
+        { id: 'overview', label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} /> },
+        { id: 'start', label: 'New Session', path: '/dashboard/start', icon: <PlayCircle size={18} /> },
+        { id: 'history', label: 'History', path: '/dashboard/history', icon: <History size={18} /> },
+        { id: 'analytics', label: 'Progress', path: '/dashboard/analytics', icon: <BarChart3 size={18} /> },
+        { id: 'reports', label: 'Reports', path: '/dashboard/reports', icon: <FileText size={18} /> },
+        { id: 'alerts', label: 'Security', path: '/dashboard/alerts', icon: <ShieldAlert size={18} /> },
     ];
 
     const isActive = (path) => location.pathname === path;
 
     return (
-        <aside className="w-72 bg-white border-r border-slate-100 flex flex-col h-full overflow-y-auto">
-            <div className="flex-grow py-8 px-4 space-y-2">
-                <div className="px-4 mb-6">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Main Menu</p>
+        <aside className="w-64 bg-white border-r border-slate-100 flex flex-col h-full overflow-y-auto">
+            <div className="flex-grow py-10 px-4 space-y-1">
+                <div className="px-5 mb-8">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Main Menu</p>
                 </div>
 
                 {menuItems.map((item) => (
@@ -37,18 +37,18 @@ const Sidebar = ({ onItemClick }) => {
                         key={item.id}
                         to={item.path}
                         onClick={onItemClick}
-                        className={`flex items-center justify-between px-5 py-4 rounded-2xl transition-all group ${isActive(item.path)
-                            ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100'
+                        className={`flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all duration-300 group ${isActive(item.path)
+                            ? 'bg-indigo-50 text-indigo-600'
                             : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                             }`}
                     >
                         <div className="flex items-center gap-4">
-                            <span className={`${isActive(item.path) ? 'text-white' : 'text-slate-400 group-hover:text-indigo-600'} transition-colors`}>
+                            <span className={`${isActive(item.path) ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-500'} transition-colors`}>
                                 {item.icon}
                             </span>
-                            <span className="text-sm font-black tracking-tight">{item.label}</span>
+                            <span className="text-sm font-bold tracking-tight">{item.label}</span>
                         </div>
-                        {isActive(item.path) && <ChevronRight size={14} className="opacity-70" />}
+                        {isActive(item.path) && <div className="w-1 h-4 bg-indigo-500 rounded-full" />}
                     </Link>
                 ))}
             </div>
@@ -59,8 +59,8 @@ const Sidebar = ({ onItemClick }) => {
                     className="w-full flex items-center justify-between px-5 py-4 rounded-2xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all group"
                 >
                     <div className="flex items-center gap-4">
-                        <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
-                        <span className="text-sm font-black tracking-tight">Logout</span>
+                        <LogOut size={18} className="group-hover:rotate-12 transition-transform duration-500" />
+                        <span className="text-sm font-bold tracking-tight">Logout</span>
                     </div>
                 </button>
             </div>
