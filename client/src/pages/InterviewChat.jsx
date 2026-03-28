@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { interviewChat, endSession as endSessionAPI } from '../services/api';
-import { Send, Clock, User, Mic, MicOff, AlertCircle, ShieldAlert, Monitor, Video, Code2, Play, Terminal } from 'lucide-react';
+import { Send, Clock, User, Mic, MicOff, AlertCircle, ShieldAlert, Monitor, Video, Code2, Play, Terminal, Zap } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { sendAlert } from '../services/api';
 import * as tf from '@tensorflow/tfjs';
@@ -25,6 +25,8 @@ const InterviewChat = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertMsg, setAlertMsg] = useState('');
     const [isListening, setIsListening] = useState(false);
+    const [isAutoListen, setIsAutoListen] = useState(true); // Default to true per user request
+    const [interimSpeech, setInterimSpeech] = useState('');
     const recognitionRef = useRef(null);
     const chatEndRef = useRef(null);
     const sessionRef = useRef(null);
@@ -37,19 +39,29 @@ const InterviewChat = () => {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 1.0;
             utterance.pitch = 1.0;
+            
+            utterance.onend = () => {
+                if (isAutoListen) {
+                    // Slight delay to avoid picking up the echoes
+                    setTimeout(() => startListening(), 500); 
+                }
+            };
+
             window.speechSynthesis.speak(utterance);
         }
     };
 
     // Speech to Text (Recognition) Init
     const startListening = () => {
+        if (isListening) return; // Don't start if already active
+        
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) return alert("Speech recognition not supported in this browser.");
 
         recognitionRef.current = new SpeechRecognition();
         recognitionRef.current.continuous = true;
         recognitionRef.current.interimResults = true;
-        recognitionRef.current.lang = 'en-US';
+        recognitionRef.current.lang = 'en-IN';
 
         recognitionRef.current.onstart = () => setIsListening(true);
         recognitionRef.current.onend = () => setIsListening(false);
@@ -59,16 +71,29 @@ const InterviewChat = () => {
         };
 
         recognitionRef.current.onresult = (event) => {
-            let interimTranscript = '';
-            let finalTranscript = '';
+            let currentFinalTranscript = '';
+            let currentInterimTranscript = '';
+
             for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const transcript = event.results[i][0].transcript;
                 if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+                    currentFinalTranscript += transcript;
                 } else {
-                    interimTranscript += event.results[i][0].transcript;
+                    currentInterimTranscript += transcript;
                 }
             }
-            setInputText(prev => prev + finalTranscript);
+
+            // Sync with input field: Use functional update to ensure we don't lose typed text
+            // We append the final results and show interim at the end
+            if (currentFinalTranscript) {
+                setInterimSpeech(''); // Reset interim once finalized
+                setInputText(prev => {
+                    const base = prev.trim();
+                    return base ? `${base} ${currentFinalTranscript.trim()}` : currentFinalTranscript.trim();
+                });
+            } else {
+                setInterimSpeech(currentInterimTranscript);
+            }
         };
 
         recognitionRef.current.start();
@@ -77,6 +102,7 @@ const InterviewChat = () => {
     const stopListening = () => {
         if (recognitionRef.current) {
             recognitionRef.current.stop();
+            setInterimSpeech('');
         }
     };
 
@@ -470,8 +496,8 @@ const InterviewChat = () => {
                                         handleSendMessage();
                                     }
                                 }}
-                                placeholder={isCodingMode ? "Explain your code here..." : "Type your answer here..."}
-                                className="flex-grow bg-transparent border-none px-5 py-3 focus:ring-0 outline-none transition-all resize-none font-medium text-gray-700 min-h-[48px] text-base placeholder:text-gray-400"
+                                placeholder={isListening ? (interimSpeech || "Listening...") : (isCodingMode ? "Explain your code here..." : "Type or speak your answer...")}
+                                className="flex-grow bg-transparent border-none px-5 py-3 focus:ring-0 outline-none transition-all resize-none font-medium text-gray-700 min-h-[48px] text-base placeholder:text-indigo-400"
                             />
                             <div className="flex gap-2 items-center pr-2 pb-1.5">
                                 <button

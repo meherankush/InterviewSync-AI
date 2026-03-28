@@ -129,6 +129,15 @@ export const getDashboardData = async (req, res) => {
         const bestScore = totalInterviews > 0 ? Math.max(...sessions.map(s => s.totalScore)) : 0;
         const avgScore = totalInterviews > 0 ? sessions.reduce((acc, s) => acc + s.totalScore, 0) / totalInterviews : 0;
         const totalAlerts = sessions.reduce((acc, s) => acc + s.alertCount, 0);
+        
+        // Personality stats
+        const sessionsWithPersonality = sessions.filter(s => s.personalityDevelopment);
+        const avgBehavior = sessionsWithPersonality.length > 0 
+            ? sessionsWithPersonality.reduce((acc, s) => acc + (s.personalityDevelopment.behaviorScore || 0), 0) / sessionsWithPersonality.length 
+            : 0;
+        const avgConfidence = sessionsWithPersonality.length > 0 
+            ? sessionsWithPersonality.reduce((acc, s) => acc + (s.personalityDevelopment.confidenceScore || 0), 0) / sessionsWithPersonality.length 
+            : 0;
 
         // Prepare chart data
         const performanceData = sessions.slice(0, 10).reverse().map((s, i) => ({
@@ -153,7 +162,9 @@ export const getDashboardData = async (req, res) => {
                 totalInterviews,
                 avgScore: parseFloat(avgScore.toFixed(1)),
                 bestScore: parseFloat(bestScore.toFixed(1)),
-                totalAlerts
+                totalAlerts,
+                avgBehavior: parseFloat(avgBehavior.toFixed(1)),
+                avgConfidence: parseFloat(avgConfidence.toFixed(1))
             },
             recentInterviews: sessions.slice(0, 5).map(s => ({
                 id: s._id,
@@ -161,7 +172,8 @@ export const getDashboardData = async (req, res) => {
                 createdAt: s.createdAt,
                 totalScore: s.totalScore,
                 alertCount: s.alertCount,
-                alerts: s.alerts
+                alerts: s.alerts,
+                personality: s.personalityDevelopment
             })),
             performanceData,
             domainData
@@ -196,6 +208,8 @@ Rules:
 ${isNearEnd ? `- We are near the end. You MUST ask a practical coding task or a database query task now based on the domain.` : `- Ask conceptual or technical questions based on the domain.`}
 - Ask 1 follow-up question per main answer if needed.
 - Evaluate user's answer for technical correctness, clarity, and depth.
+- Also evaluate user's "Behavior & Emotion" based on their response. Detect if they are: confident, confused, frustrated, calm, or descriptive.
+- In "behavior_feedback", provide short advice on how they can improve their presentation/persona.
 - Maintain professional tone.
 
 Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
@@ -204,10 +218,14 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
   "technical_score": number,
   "clarity_score": number,
   "depth_score": number,
+  "behavior_score": number (0-10, evaluation of their behavioral confidence/professionalism),
+  "confidence_score": number (0-10, evaluation of their internal certainty),
+  "emotion": "string (e.g. 'Calm', 'Confused', 'Confident', 'Hesitant')",
+  "behavior_feedback": "string (short advice on personality improvement)",
   "next_question": "next main question if applicable",
   "is_coding": boolean,
-  "coding_topic": "e.g. 'Binary Search', 'SQL Join', 'Array Manipulation'",
-  "initial_code": "boilerplate code if is_coding is true, else empty"
+  "coding_topic": "string",
+  "initial_code": "string"
 }`;
 
         // Prepare History for Gemini Chat - MUST start with 'user' role
@@ -243,9 +261,11 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
         const aiResponse = JSON.parse(jsonContent);
 
         // Update scores (running average)
-        const tScore = aiResponse.technical_score || aiResponse.technicalScore;
-        const cScore = aiResponse.clarity_score || aiResponse.clarityScore;
-        const dScore = aiResponse.depth_score || aiResponse.depthScore;
+        const tScore = aiResponse.technical_score ?? aiResponse.technicalScore;
+        const cScore = aiResponse.clarity_score ?? aiResponse.clarityScore;
+        const dScore = aiResponse.depth_score ?? aiResponse.depthScore;
+        const bScore = aiResponse.behavior_score ?? 0;
+        const confScore = aiResponse.confidence_score ?? 0;
 
         if (tScore !== undefined && cScore !== undefined && dScore !== undefined) {
             const currentCount = session.currentQuestionIndex || 0;
@@ -253,6 +273,17 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
 
             // Calculate new total average
             session.totalScore = ((session.totalScore * currentCount) + newMsgAvg) / (currentCount + 1);
+            
+            // Update personality averages
+            if (!session.personalityDevelopment) {
+                session.personalityDevelopment = { behaviorScore: 0, confidenceScore: 0, emotionSummary: "", behaviorFeedback: "" };
+            }
+
+            session.personalityDevelopment.behaviorScore = ((session.personalityDevelopment.behaviorScore * currentCount) + Number(bScore)) / (currentCount + 1);
+            session.personalityDevelopment.confidenceScore = ((session.personalityDevelopment.confidenceScore * currentCount) + Number(confScore)) / (currentCount + 1);
+            session.personalityDevelopment.emotionSummary = aiResponse.emotion || "In Progress";
+            session.personalityDevelopment.behaviorFeedback = aiResponse.behavior_feedback || "";
+
             session.currentQuestionIndex = currentCount + 1;
         }
 
@@ -266,6 +297,7 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
             reply: aiResponse.reply,
             next_question: aiResponse.next_question,
             totalScore: session.totalScore,
+            personality: session.personalityDevelopment,
             is_coding: aiResponse.is_coding || false,
             coding_topic: aiResponse.coding_topic || "",
             initial_code: aiResponse.initial_code || ""

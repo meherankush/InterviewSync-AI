@@ -31,9 +31,9 @@ const Navbar = () => {
         <>
             {isLanding && (
                 <>
-                    <a href="#features" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all lowercase tracking-tight">features</a>
-                    <a href="#how-it-works" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all lowercase tracking-tight">how it works</a>
-                    <a href="#about-us" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all lowercase tracking-tight">about us</a>
+                    <a href="#features" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all tracking-tight">Features</a>
+                    <a href="#how-it-works" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all tracking-tight">How It Works</a>
+                    <a href="#about-us" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all tracking-tight">About Us</a>
                 </>
             )}
         </>
@@ -65,15 +65,15 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center space-x-4">
                         {token ? (
                             <>
-                                <Link to="/dashboard" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-5 py-2.5 rounded-full text-sm font-black transition-all lowercase tracking-tight">dashboard</Link>
-                                <button onClick={handleLogout} className="flex items-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 px-5 py-2.5 rounded-full text-sm font-black transition-all border border-transparent hover:border-rose-100">
-                                    <LogOut className="w-4 h-4 mr-2" /> logout
+                                <Link to="/dashboard" className="text-slate-600 hover:text-indigo-600 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">Dashboard</Link>
+                                <button onClick={handleLogout} className="flex items-center text-slate-400 hover:text-rose-600 px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
+                                    <LogOut className="w-4 h-4 mr-2" /> Logout
                                 </button>
                             </>
                         ) : (
                             <>
-                                <Link to="/login" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-6 py-2.5 rounded-full text-sm font-black transition-all lowercase tracking-tight">sign in</Link>
-                                <Link to="/register" className="group flex items-center bg-slate-900 text-white px-7 py-3 rounded-2xl text-xs font-black transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:bg-black hover:shadow-[0_15px_40px_rgba(0,0,0,0.2)] hover:-translate-y-1 uppercase tracking-widest">
+                                <Link to="/login" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 px-6 py-2.5 rounded-full text-sm font-black transition-all tracking-tight">Login</Link>
+                                <Link to="/register" className="group flex items-center bg-slate-900 text-white px-7 py-3 rounded-2xl text-[10px] font-black transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:bg-black hover:shadow-[0_15px_40px_rgba(0,0,0,0.2)] hover:-translate-y-1 uppercase tracking-widest">
                                     Get Started <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </>
@@ -96,13 +96,13 @@ const Navbar = () => {
                     <div className="h-px bg-slate-100 my-4 w-full"></div>
                     {token ? (
                         <>
-                            <Link to="/dashboard" className="text-slate-900 font-black px-4 py-3 rounded-2xl hover:bg-indigo-50 transition-colors uppercase tracking-[0.2em] text-[10px]">dashboard</Link>
-                            <button onClick={handleLogout} className="text-rose-600 font-black px-4 py-3 flex items-center gap-3 hover:bg-rose-50 rounded-2xl transition-colors uppercase tracking-[0.2em] text-[10px]"><LogOut className="w-4 h-4" /> logout</button>
+                            <Link to="/dashboard" className="text-slate-900 font-black px-4 py-3 rounded-2xl hover:bg-indigo-50 transition-colors uppercase tracking-widest text-[10px]">Dashboard</Link>
+                            <button onClick={handleLogout} className="text-rose-600 font-black px-4 py-3 flex items-center gap-3 hover:bg-rose-50 rounded-2xl transition-colors uppercase tracking-widest text-[10px]"><LogOut className="w-4 h-4" /> Logout</button>
                         </>
                     ) : (
                         <div className="flex flex-col space-y-4">
-                            <Link to="/login" className="text-center font-black py-4 border border-slate-200 rounded-2xl text-[10px] uppercase tracking-[0.2em] text-slate-600 hover:bg-slate-50 transition-colors">sign in</Link>
-                            <Link to="/register" className="text-center bg-indigo-600 text-white font-black py-4 rounded-2xl text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-indigo-200">get started free</Link>
+                            <Link to="/login" className="text-center font-black py-4 border border-slate-200 rounded-2xl text-[10px] uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-colors">Login</Link>
+                            <Link to="/register" className="text-center bg-indigo-600 text-white font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-200">Get Started Free</Link>
                         </div>
                     )}
                 </div>

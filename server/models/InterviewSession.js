@@ -13,6 +13,12 @@ const sessionSchema = mongoose.Schema({
     alertCount: { type: Number, default: 0 },
     alerts: [alertSchema],
     currentQuestionIndex: { type: Number, default: 0 },
+    personalityDevelopment: {
+        behaviorScore: { type: Number, default: 0 }, // 0-10
+        confidenceScore: { type: Number, default: 0 }, // 0-10
+        emotionSummary: { type: String, default: "" }, // e.g., "Calm", "Confused", "Stressed"
+        behaviorFeedback: { type: String, default: "" }
+    },
     conversation: [
         {
             role: { type: String, enum: ["assistant", "user"] },

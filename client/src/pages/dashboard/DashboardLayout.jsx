@@ -20,12 +20,12 @@ const DashboardLayout = () => {
     };
 
     return (
-        <div className="flex bg-gray-50/30 min-h-[calc(100vh-4rem)] pt-16 relative">
+        <div className="flex bg-slate-50 min-h-[calc(100vh-4rem)] pt-16 relative">
             {/* Mobile Header Toggle (Bottom Right Floating) */}
             <div className="lg:hidden fixed bottom-6 right-6 z-[100]">
                 <button
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="w-14 h-14 bg-indigo-600 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
+                    className="w-14 h-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
                 >
                     {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -34,7 +34,7 @@ const DashboardLayout = () => {
             {/* Backdrop for mobile */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] lg:hidden"
+                    className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[80] lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
@@ -49,19 +49,19 @@ const DashboardLayout = () => {
 
             {/* Main Content Area */}
             <main className="flex-grow min-h-full overflow-hidden relative w-full lg:w-auto">
-                {/* Background decorative elements */}
-                <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-indigo-50/30 rounded-full mix-blend-multiply blur-[120px] -z-10 animate-blob"></div>
+                {/* Subtle background decorative elements */}
+                <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-indigo-50/20 rounded-full blur-[100px] -z-10"></div>
 
                 {/* Mobile Header Bar */}
                 <div className="lg:hidden px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between sticky top-0 z-20">
                     <div className="flex items-center gap-2">
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Dashboard</span>
                         <ChevronRight size={12} className="text-slate-300" />
-                        <span className="text-sm font-black text-indigo-600 lowercase tracking-tighter italic">{getPageTitle()}</span>
+                        <span className="text-sm font-black text-indigo-600 tracking-tighter">{getPageTitle()}</span>
                     </div>
                 </div>
 
-                <div className="relative z-10 w-full overflow-y-auto max-h-full custom-scrollbar">
+                <div className="relative z-10 w-full overflow-y-auto max-h-full">
                     <Outlet />
                 </div>
             </main>
