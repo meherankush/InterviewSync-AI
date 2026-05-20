@@ -12,6 +12,33 @@ const languageOptions = [
     { value: 'cpp', label: 'C++' },
 ];
 
+const snippets = {
+    javascript: [
+        { trigger: 'fun', label: 'function declaration', code: 'function solve() {\n  \n}' },
+        { trigger: 'for', label: 'for loop', code: 'for (let i = 0; i < n; i += 1) {\n  \n}' },
+        { trigger: 'map', label: 'Map initialization', code: 'const map = new Map();' },
+        { trigger: 'log', label: 'console output', code: 'console.log(result);' },
+    ],
+    python: [
+        { trigger: 'def', label: 'function declaration', code: 'def solve():\n    pass' },
+        { trigger: 'for', label: 'for loop', code: 'for i in range(n):\n    pass' },
+        { trigger: 'inp', label: 'read input', code: 'n = int(input())' },
+        { trigger: 'print', label: 'print output', code: 'print(result)' },
+    ],
+    java: [
+        { trigger: 'publ', label: 'Java main class', code: 'public class Main {\n    public static void main(String[] args) {\n        \n    }\n}' },
+        { trigger: 'main', label: 'main method', code: 'public static void main(String[] args) {\n    \n}' },
+        { trigger: 'scan', label: 'Scanner input', code: 'Scanner sc = new Scanner(System.in);' },
+        { trigger: 'sout', label: 'System.out.println', code: 'System.out.println(result);' },
+    ],
+    cpp: [
+        { trigger: 'inc', label: 'C++ starter', code: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}' },
+        { trigger: 'for', label: 'for loop', code: 'for (int i = 0; i < n; i++) {\n    \n}' },
+        { trigger: 'vec', label: 'vector declaration', code: 'vector<int> nums(n);' },
+        { trigger: 'cout', label: 'cout output', code: 'cout << result << endl;' },
+    ],
+};
+
 const createRoomId = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
 const CodeRoom = ({ publicAccess = false }) => {
@@ -32,11 +59,23 @@ const CodeRoom = ({ publicAccess = false }) => {
     const [runError, setRunError] = useState('');
     const [running, setRunning] = useState(false);
     const socketRef = useRef(null);
+    const editorRef = useRef(null);
     const lastRemoteCodeRef = useRef('');
+    const [cursorPosition, setCursorPosition] = useState(0);
     const lineNumbers = useMemo(() => {
         const count = Math.max(code.split('\n').length, 1);
         return Array.from({ length: count }, (_, index) => index + 1).join('\n');
     }, [code]);
+    const currentWord = useMemo(() => {
+        const beforeCursor = code.slice(0, cursorPosition);
+        return beforeCursor.match(/[A-Za-z_][A-Za-z0-9_]*$/)?.[0] || '';
+    }, [code, cursorPosition]);
+    const recommendations = useMemo(() => {
+        if (!currentWord) return [];
+        return (snippets[language] || [])
+            .filter((item) => item.trigger.startsWith(currentWord.toLowerCase()) || item.label.toLowerCase().includes(currentWord.toLowerCase()))
+            .slice(0, 3);
+    }, [currentWord, language]);
 
     const applyRemoteCode = (nextCode = '') => {
         lastRemoteCodeRef.current = nextCode;
@@ -121,6 +160,30 @@ const CodeRoom = ({ publicAccess = false }) => {
         }
 
         socketRef.current?.emit('code-change', { roomId, code: value });
+    };
+
+    const updateCursorPosition = () => {
+        setCursorPosition(editorRef.current?.selectionStart || 0);
+    };
+
+    const insertRecommendation = (recommendation) => {
+        const start = Math.max(cursorPosition - currentWord.length, 0);
+        const nextCode = `${code.slice(0, start)}${recommendation.code}${code.slice(cursorPosition)}`;
+        const nextCursor = start + recommendation.code.length;
+
+        handleCodeChange(nextCode);
+        window.requestAnimationFrame(() => {
+            editorRef.current?.focus();
+            editorRef.current?.setSelectionRange(nextCursor, nextCursor);
+            setCursorPosition(nextCursor);
+        });
+    };
+
+    const handleEditorKeyDown = (event) => {
+        if (event.key === 'Tab' && recommendations.length > 0) {
+            event.preventDefault();
+            insertRecommendation(recommendations[0]);
+        }
     };
 
     const handleLanguageChange = (event) => {
@@ -286,13 +349,40 @@ const CodeRoom = ({ publicAccess = false }) => {
                             <pre className="select-none overflow-hidden bg-slate-900/80 px-4 py-5 text-right font-mono text-sm leading-6 text-slate-500">
                                 {lineNumbers}
                             </pre>
-                            <textarea
-                                value={code}
-                                onChange={(event) => handleCodeChange(event.target.value)}
-                                spellCheck="false"
-                                className="h-full w-full resize-none bg-slate-950 px-5 py-5 font-mono text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600"
-                                placeholder="Start coding here..."
-                            />
+                            <div className="relative min-w-0">
+                                <textarea
+                                    ref={editorRef}
+                                    value={code}
+                                    onChange={(event) => {
+                                        handleCodeChange(event.target.value);
+                                        setCursorPosition(event.target.selectionStart);
+                                    }}
+                                    onClick={updateCursorPosition}
+                                    onKeyUp={updateCursorPosition}
+                                    onKeyDown={handleEditorKeyDown}
+                                    spellCheck="false"
+                                    className="h-full w-full resize-none bg-slate-950 px-5 py-5 font-mono text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600"
+                                    placeholder="Start coding here..."
+                                />
+                                {recommendations.length > 0 && (
+                                    <div className="absolute bottom-4 left-5 right-5 rounded-2xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl">
+                                        <div className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Recommendations</div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {recommendations.map((recommendation) => (
+                                                <button
+                                                    key={`${recommendation.trigger}-${recommendation.label}`}
+                                                    onClick={() => insertRecommendation(recommendation)}
+                                                    className="rounded-xl bg-slate-800 px-3 py-2 text-left font-mono text-xs text-slate-100 transition-colors hover:bg-indigo-600"
+                                                >
+                                                    <span className="font-bold">{recommendation.trigger}</span>
+                                                    <span className="ml-2 text-slate-400">{recommendation.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-2 text-[10px] font-bold text-slate-500">Press Tab to insert the first suggestion.</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div className="grid gap-4 border-t border-slate-100 bg-white p-5 lg:grid-cols-2">
                             <label className="space-y-2">
