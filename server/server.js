@@ -14,7 +14,15 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 
-app.use(cors());
+// ✅ CORS FIX
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://interview-sync-ai.vercel.app'
+    ],
+    credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
@@ -24,14 +32,20 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+// ✅ SOCKET.IO CORS FIX
 const io = new Server(httpServer, {
     cors: {
-        origin: process.env.CLIENT_URL || 'http://localhost:5173',
+        origin: [
+            'http://localhost:5173',
+            'https://interview-sync-ai.vercel.app'
+        ],
         methods: ['GET', 'POST'],
+        credentials: true,
     },
 });
 
 const rooms = new Map();
+
 const starterCode = `function twoSum(nums, target) {
   const seen = new Map();
 
@@ -64,22 +78,30 @@ const getRoom = (roomId, password = '') => {
 const getUsers = (room) => Array.from(room.users.values());
 
 io.on('connection', (socket) => {
+
     socket.on('join-room', ({ roomId, userName, password }) => {
+
         if (!roomId) return;
 
         const normalizedRoomId = roomId.trim().toUpperCase();
         const roomPassword = password?.trim() || '';
+
         const existingRoom = rooms.get(normalizedRoomId);
 
-        if (existingRoom?.password && existingRoom.password !== roomPassword) {
+        if (
+            existingRoom?.password &&
+            existingRoom.password !== roomPassword
+        ) {
             socket.emit('join-error', 'Invalid room password.');
             return;
         }
 
         const room = getRoom(normalizedRoomId, roomPassword);
+
         const displayName = userName?.trim() || 'Guest';
 
         socket.join(normalizedRoomId);
+
         socket.data.roomId = normalizedRoomId;
         socket.data.userName = displayName;
 
@@ -94,27 +116,41 @@ io.on('connection', (socket) => {
             users: getUsers(room),
         });
 
-        socket.to(normalizedRoomId).emit('users-update', getUsers(room));
+        io.to(normalizedRoomId).emit(
+            'users-update',
+            getUsers(room)
+        );
     });
 
     socket.on('code-change', ({ roomId, code }) => {
+
         const room = rooms.get(roomId);
+
         if (!room || typeof code !== 'string') return;
 
         room.code = code;
+
         socket.to(roomId).emit('code-update', code);
     });
 
     socket.on('language-change', ({ roomId, language }) => {
+
         const room = rooms.get(roomId);
+
         if (!room || typeof language !== 'string') return;
 
         room.language = language;
-        socket.to(roomId).emit('language-update', language);
+
+        socket.to(roomId).emit(
+            'language-update',
+            language
+        );
     });
 
     socket.on('disconnect', () => {
+
         const { roomId } = socket.data;
+
         const room = rooms.get(roomId);
 
         if (!room) return;
@@ -126,10 +162,15 @@ io.on('connection', (socket) => {
             return;
         }
 
-        socket.to(roomId).emit('users-update', getUsers(room));
+        io.to(roomId).emit(
+            'users-update',
+            getUsers(room)
+        );
     });
 });
 
 const PORT = process.env.PORT || 5000;
 
-httpServer.listen(PORT, console.log(`Server running on port ${PORT}`));
+httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
