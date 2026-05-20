@@ -5,6 +5,7 @@ import {
     PlayCircle,
     History,
     BarChart3,
+    Code2,
     FileText,
     ShieldAlert,
     ChevronRight,
@@ -17,6 +18,7 @@ const Sidebar = ({ onItemClick }) => {
     const menuItems = [
         { id: 'overview', label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={18} /> },
         { id: 'start', label: 'New Session', path: '/dashboard/start', icon: <PlayCircle size={18} /> },
+        { id: 'code-room', label: 'Code Room', path: '/dashboard/code-room', icon: <Code2 size={18} /> },
         { id: 'history', label: 'History', path: '/dashboard/history', icon: <History size={18} /> },
         { id: 'analytics', label: 'Progress', path: '/dashboard/analytics', icon: <BarChart3 size={18} /> },
         { id: 'reports', label: 'Reports', path: '/dashboard/reports', icon: <FileText size={18} /> },

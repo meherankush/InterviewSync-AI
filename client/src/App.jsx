@@ -13,6 +13,7 @@ import InterviewsHistory from './pages/dashboard/InterviewsHistory';
 import Analytics from './pages/dashboard/Analytics';
 import SecurityAlerts from './pages/dashboard/SecurityAlerts';
 import StartInterview from './pages/dashboard/StartInterview';
+import CodeRoom from './pages/dashboard/CodeRoom';
 
 function App() {
     return (
@@ -37,6 +38,7 @@ function AppContent() {
                     <Route path="/" element={<Landing />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/code-room" element={<CodeRoom publicAccess />} />
 
                     {/* Nested Dashboard Routes */}
                     <Route path="/dashboard" element={<DashboardLayout />}>
@@ -46,6 +48,7 @@ function AppContent() {
                         <Route path="reports" element={<InterviewsHistory />} />
                         <Route path="alerts" element={<SecurityAlerts />} />
                         <Route path="start" element={<StartInterview />} />
+                        <Route path="code-room" element={<CodeRoom />} />
                     </Route>
 
                     <Route path="/interview" element={<InterviewScreen />} />

@@ -12,6 +12,7 @@ const DashboardLayout = () => {
         const path = location.pathname;
         if (path === '/dashboard') return 'Overview';
         if (path === '/dashboard/start') return 'Start Interview';
+        if (path === '/dashboard/code-room') return 'Code Room';
         if (path === '/dashboard/history') return 'History';
         if (path === '/dashboard/analytics') return 'Analytics';
         if (path === '/dashboard/reports') return 'Reports';

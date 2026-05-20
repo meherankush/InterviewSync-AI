@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, X, ArrowRight } from 'lucide-react';
+import { Code2, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -32,6 +32,7 @@ const Navbar = () => {
                 <div className="flex items-center gap-1">
                     <a href="#features" className="text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all">Features</a>
                     <a href="#how-it-works" className="text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all">How It Works</a>
+                    <Link to="/code-room" className="text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all">Code Room</Link>
                     <a href="#about-us" className="text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold transition-all">About</a>
                 </div>
             )}
@@ -61,6 +62,9 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center space-x-3">
                         {token ? (
                             <>
+                                <Link to="/code-room" className="flex items-center text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">
+                                    <Code2 className="w-4 h-4 mr-2" /> Code Room
+                                </Link>
                                 <Link to="/dashboard" className="text-slate-500 hover:text-indigo-600 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">Dashboard</Link>
                                 <button onClick={handleLogout} className="flex items-center text-slate-400 hover:text-rose-600 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">
                                     <LogOut className="w-4 h-4 mr-2" /> Logout
@@ -90,11 +94,13 @@ const Navbar = () => {
                     <div className="h-px bg-slate-50 my-2"></div>
                     {token ? (
                         <>
+                            <Link to="/code-room" onClick={() => setMobileMenuOpen(false)} className="text-slate-900 font-bold py-3 text-xs uppercase tracking-widest">Code Room</Link>
                             <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="text-slate-900 font-bold py-3 text-xs uppercase tracking-widest">Dashboard</Link>
                             <button onClick={handleLogout} className="text-rose-600 font-bold py-3 text-xs uppercase tracking-widest text-left">Logout</button>
                         </>
                     ) : (
                         <>
+                            <Link to="/code-room" onClick={() => setMobileMenuOpen(false)} className="font-bold py-3 text-xs uppercase tracking-widest text-slate-600">Code Room</Link>
                             <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="font-bold py-3 text-xs uppercase tracking-widest text-slate-600">Login</Link>
                             <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block bg-indigo-600 text-white text-center font-bold py-4 rounded-2xl text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-100">Get Started Free</Link>
                         </>

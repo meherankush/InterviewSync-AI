@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
+import {
     CheckCircle, AlertTriangle, Video, BarChart2, BrainCircuit, 
     Mic, Lock, ShieldCheck, Zap, UserCheck, ArrowRight, PlayCircle, 
     Star, Sparkles, Layout, Globe, TrendingUp, Target, Award, Users, FileText,
-    Cpu, Infinity, Activity, MessageSquare, Layers, Shield
+    Cpu, Infinity, Activity, MessageSquare, Layers, Shield, Code2
 } from 'lucide-react';
 
 const Landing = () => {
@@ -42,6 +42,10 @@ const Landing = () => {
                             <a href="#features" className="flex items-center justify-center bg-white border border-slate-100 text-slate-600 font-bold py-4.5 px-10 rounded-2xl shadow-sm hover:bg-slate-50 hover:-translate-y-1 transition-all duration-300 uppercase tracking-widest text-[11px]">
                                 View Parameters
                             </a>
+                            <Link to="/code-room" className="flex items-center justify-center bg-slate-950 text-white font-bold py-4.5 px-10 rounded-2xl shadow-xl shadow-slate-200/60 hover:bg-slate-800 hover:-translate-y-1 transition-all duration-300 uppercase tracking-widest text-[11px]">
+                                <Code2 className="w-4 h-4 mr-2" />
+                                Code Room
+                            </Link>
                         </div>
                     </div>
 
