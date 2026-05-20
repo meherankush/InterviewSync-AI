@@ -7,6 +7,7 @@ import connectDB from './config/db.js';
 
 import authRoutes from './routes/authRoutes.js';
 import interviewRoutes from './routes/interviewRoutes.js';
+import codeRoutes from './routes/codeRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -27,6 +28,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/interview', interviewRoutes);
+app.use('/api/code', codeRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');

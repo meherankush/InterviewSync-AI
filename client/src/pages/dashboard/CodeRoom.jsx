@@ -27,6 +27,10 @@ const CodeRoom = ({ publicAccess = false }) => {
     const [language, setLanguage] = useState('javascript');
     const [code, setCode] = useState('');
     const [users, setUsers] = useState([]);
+    const [stdin, setStdin] = useState('');
+    const [runResult, setRunResult] = useState(null);
+    const [runError, setRunError] = useState('');
+    const [running, setRunning] = useState(false);
     const socketRef = useRef(null);
     const lastRemoteCodeRef = useRef('');
     const lineNumbers = useMemo(() => {
@@ -123,6 +127,34 @@ const CodeRoom = ({ publicAccess = false }) => {
         const nextLanguage = event.target.value;
         setLanguage(nextLanguage);
         socketRef.current?.emit('language-change', { roomId, language: nextLanguage });
+    };
+
+    const runCode = async () => {
+        setRunning(true);
+        setRunError('');
+        setRunResult(null);
+
+        try {
+            const response = await fetch(`${SOCKET_URL}/api/code/run`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code, language, stdin }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Code execution failed.');
+            }
+
+            setRunResult(data);
+        } catch (error) {
+            setRunError(error.message);
+        } finally {
+            setRunning(false);
+        }
     };
 
     const copyLink = async () => {
@@ -234,11 +266,21 @@ const CodeRoom = ({ publicAccess = false }) => {
                                     <p className="font-black text-slate-900 tracking-widest truncate">{roomId}</p>
                                 </div>
                             </div>
-                            <select value={language} onChange={handleLanguageChange} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-300">
-                                {languageOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>{option.label}</option>
-                                ))}
-                            </select>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <select value={language} onChange={handleLanguageChange} className="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-300">
+                                    {languageOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>{option.label}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    onClick={runCode}
+                                    disabled={running || !code.trim()}
+                                    className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <Play size={16} />
+                                    {running ? 'Running' : 'Run Code'}
+                                </button>
+                            </div>
                         </div>
                         <div className="h-[34rem] bg-slate-950 text-slate-100 grid grid-cols-[3.5rem_1fr] overflow-hidden">
                             <pre className="select-none overflow-hidden bg-slate-900/80 px-4 py-5 text-right font-mono text-sm leading-6 text-slate-500">
@@ -251,6 +293,30 @@ const CodeRoom = ({ publicAccess = false }) => {
                                 className="h-full w-full resize-none bg-slate-950 px-5 py-5 font-mono text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600"
                                 placeholder="Start coding here..."
                             />
+                        </div>
+                        <div className="grid gap-4 border-t border-slate-100 bg-white p-5 lg:grid-cols-2">
+                            <label className="space-y-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Input</span>
+                                <textarea
+                                    value={stdin}
+                                    onChange={(event) => setStdin(event.target.value)}
+                                    className="h-32 w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 font-mono text-sm text-slate-800 outline-none focus:border-indigo-300"
+                                    placeholder="Optional stdin..."
+                                />
+                            </label>
+                            <div className="space-y-2">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Output</span>
+                                <pre className="h-32 overflow-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm text-slate-100">
+                                    {runError || runResult?.stderr || runResult?.compileOutput || runResult?.stdout || (running ? 'Running your code...' : 'Run code to see output.')}
+                                </pre>
+                                {runResult && (
+                                    <div className="flex flex-wrap gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                        <span>Status: {runResult.status}</span>
+                                        {runResult.time && <span>Time: {runResult.time}s</span>}
+                                        {runResult.memory && <span>Memory: {runResult.memory} KB</span>}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </section>
 
