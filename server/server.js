@@ -14,13 +14,14 @@ connectDB();
 
 const app = express();
 const httpServer = createServer(app);
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.CLIENT_URL,
+].filter(Boolean);
 
 // ✅ CORS FIX
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'https://interview-sync-ai.vercel.app'
-    ],
+    origin: allowedOrigins,
     credentials: true
 }));
 
@@ -37,10 +38,7 @@ app.get('/', (req, res) => {
 // ✅ SOCKET.IO CORS FIX
 const io = new Server(httpServer, {
     cors: {
-        origin: [
-            'http://localhost:5173',
-            'https://interview-sync-ai.vercel.app'
-        ],
+        origin: allowedOrigins,
         methods: ['GET', 'POST'],
         credentials: true,
     },
