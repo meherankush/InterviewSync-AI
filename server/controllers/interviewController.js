@@ -13,11 +13,16 @@ export const startSession = async (req, res) => {
             { $sample: { size: questionCount } }
         ]);
 
-        if (questions.length === 0) {
-            return res.status(404).json({ error: "No questions found for this domain" });
-        }
+        const fallbackQuestions = {
+            DSA: 'Solve this problem: Given an array of integers, explain how you would find two numbers that add up to a target value. Discuss the optimal time complexity.',
+            'Web Development': 'Explain how React state updates work and how you would optimize a slow component in a production web app.',
+            'Machine Learning': 'Explain overfitting and describe practical techniques you would use to reduce it in a machine learning model.',
+            'Data Science': 'Given a dataset with missing values and outliers, explain your process for cleaning it before analysis.',
+            HR: 'Tell me about yourself and describe one project where you showed ownership and problem-solving.',
+            DBMS: 'Explain indexing in databases and how you would decide which columns should be indexed for a slow query.',
+        };
 
-        const firstQuestion = questions[0].question;
+        const firstQuestion = questions[0]?.question || fallbackQuestions[domain] || `Tell me about your experience with ${domain}.`;
 
         const newSession = await InterviewSession.create({
             userId: req.user.id,

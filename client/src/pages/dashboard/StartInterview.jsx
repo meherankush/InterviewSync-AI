@@ -31,7 +31,7 @@ const StartInterview = () => {
             }));
             navigate('/chat');
         } catch (err) {
-            alert('Failed to start: ' + err.message);
+            alert('Failed to start: ' + (err.response?.data?.error || err.response?.data?.message || err.message));
             setLoading(false);
         }
     };
