@@ -50,14 +50,7 @@ app.get('/', (req, res) => {
 // ✅ SOCKET.IO CORS FIX
 const io = new Server(httpServer, {
     cors: {
-        origin: (origin, callback) => {
-            if (isAllowedOrigin(origin)) {
-                callback(null, true);
-                return;
-            }
-
-            callback(new Error('Not allowed by CORS'));
-        },
+        origin: allowedOrigins,
         methods: ['GET', 'POST'],
         credentials: true,
     },

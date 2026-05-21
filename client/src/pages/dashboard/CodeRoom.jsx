@@ -3,8 +3,8 @@ import { io } from 'socket.io-client';
 import { Copy, DoorOpen, KeyRound, Link as LinkIcon, Play, Plus, Users, Wifi, WifiOff } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || API_URL.replace(/\/api\/?$/, '');
 
 const languageOptions = [
     { value: 'javascript', label: 'JavaScript' },
@@ -63,6 +63,7 @@ const CodeRoom = ({ publicAccess = false }) => {
     const [joinError, setJoinError] = useState('');
     const [joined, setJoined] = useState(Boolean(searchParams.get('room')) && !publicAccess);
     const [connected, setConnected] = useState(false);
+    const [socketError, setSocketError] = useState('');
     const [copied, setCopied] = useState(false);
     const [language, setLanguage] = useState('javascript');
     const [code, setCode] = useState('');
@@ -116,10 +117,15 @@ const CodeRoom = ({ publicAccess = false }) => {
 
         socket.on('connect', () => {
             setConnected(true);
+            setSocketError('');
             socket.emit('join-room', { roomId, userName: displayName, password: roomPassword });
         });
 
         socket.on('disconnect', () => setConnected(false));
+        socket.on('connect_error', (error) => {
+            setConnected(false);
+            setSocketError(`Socket failed: ${error.message}. URL: ${SOCKET_URL}`);
+        });
 
         socket.on('join-error', (message) => {
             setJoinError(message || 'Unable to join this room.');
@@ -277,6 +283,11 @@ const CodeRoom = ({ publicAccess = false }) => {
                     </div>
                 )}
             </div>
+            {joined && socketError && (
+                <div className="mb-5 rounded-2xl border border-rose-100 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-600">
+                    {socketError}
+                </div>
+            )}
 
             {!joined ? (
                 <form onSubmit={handleJoin} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm max-w-4xl">
