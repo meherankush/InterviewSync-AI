@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { interviewChat, endSession as endSessionAPI } from '../services/api';
-import { Send, Clock, User, Mic, MicOff, AlertCircle, ShieldAlert, Monitor, Video, Code2, Play, Terminal, Zap, ShieldCheck } from 'lucide-react';
+import { Send, Clock, User, Mic, MicOff, AlertCircle, ShieldAlert, Monitor, Video, Code2, Play, Terminal, Zap, ShieldCheck, Bot, VideoOff } from 'lucide-react';
 import Editor from '@monaco-editor/react';
 import { sendAlert } from '../services/api';
 import * as tf from '@tensorflow/tfjs';
@@ -20,6 +20,8 @@ const InterviewChat = () => {
     const [code, setCode] = useState('');
     const [codingTopic, setCodingTopic] = useState('');
     const [language, setLanguage] = useState('javascript');
+    const [cameraReady, setCameraReady] = useState(false);
+    const [cameraError, setCameraError] = useState('');
 
     const [showAlert, setShowAlert] = useState(false);
     const [alertMsg, setAlertMsg] = useState('');
@@ -131,6 +133,8 @@ const InterviewChat = () => {
                     videoRef.current.srcObject = stream;
                     videoRef.current.onloadedmetadata = () => videoRef.current.play();
                 }
+                setCameraReady(true);
+                setCameraError('');
 
                 await tf.setBackend('webgl');
                 faceModel = await blazeface.load();
@@ -173,7 +177,11 @@ const InterviewChat = () => {
                         } catch (e) { console.error("Detection interval error", e); }
                     }
                 }, 3000);
-            } catch (err) { console.error("Proctoring Init Error", err); }
+            } catch (err) {
+                console.error("Proctoring Init Error", err);
+                setCameraReady(false);
+                setCameraError('Camera access is required to continue this interview.');
+            }
         };
 
         if (parsed.session) initProctoring();
@@ -293,18 +301,67 @@ const InterviewChat = () => {
         );
     }
 
+    if (cameraError) {
+        return (
+            <div className="h-screen bg-slate-950 flex items-center justify-center p-6">
+                <div className="max-w-md w-full bg-white rounded-3xl p-8 text-center shadow-2xl">
+                    <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-6">
+                        <VideoOff className="w-8 h-8" />
+                    </div>
+                    <h1 className="text-2xl font-black text-slate-900 mb-3">Camera Required</h1>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed mb-6">
+                        This coding interview requires a live camera feed for the participant and interviewer room experience.
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="w-full rounded-2xl bg-indigo-600 px-6 py-4 text-xs font-black uppercase tracking-widest text-white hover:bg-indigo-700"
+                    >
+                        Allow Camera And Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!cameraReady) {
+        return (
+            <div className="h-screen flex flex-col items-center justify-center bg-slate-950 text-white">
+                <div className="w-12 h-12 border-4 border-white/10 border-t-indigo-500 rounded-full animate-spin mb-5"></div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-400">Starting camera interview room</p>
+            </div>
+        );
+    }
+
     return (
         <div className="flex h-screen bg-slate-50/30 overflow-hidden">
             {/* Sidebar Monitoring */}
             <div className="w-80 bg-white border-r border-slate-100 p-8 hidden lg:flex flex-col gap-10 animate-in fade-in slide-in-from-left duration-700">
                 <div className="space-y-6">
-                    {/* Camera Feed Card */}
+                    {/* Interviewer Feed Card */}
+                    <div className="relative group">
+                        <div className="relative aspect-video bg-slate-950 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-100/20 border border-slate-200/50 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(99,102,241,0.35),transparent_55%)]"></div>
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-900/30 mb-4">
+                                    <Bot className="w-8 h-8" />
+                                </div>
+                                <p className="text-white text-sm font-black tracking-tight">AI Interviewer</p>
+                                <p className="text-[9px] font-bold uppercase tracking-widest text-indigo-200 mt-1">Live in room</p>
+                            </div>
+                            <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10">
+                                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                                <span className="text-[9px] font-bold text-white uppercase tracking-widest">Interviewer</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Candidate Camera Feed Card */}
                     <div className="relative group">
                         <div className="relative aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-100/20 border border-slate-200/50">
                             <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-110" />
                             <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/40 backdrop-blur-md rounded-xl border border-white/10">
                                 <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]"></div>
-                                <span className="text-[9px] font-bold text-white uppercase tracking-widest">Self Feed</span>
+                                <span className="text-[9px] font-bold text-white uppercase tracking-widest">Participant</span>
                             </div>
                         </div>
                     </div>

@@ -27,8 +27,8 @@ function AppContent() {
     const location = useLocation();
     const isDashboard = location.pathname.startsWith('/dashboard');
     const isResults = location.pathname.startsWith('/results');
-    const hideNav = ['/chat', '/interview'].includes(location.pathname);
-    const hideFooter = ['/chat', '/interview', '/login', '/register'].includes(location.pathname) || isDashboard || isResults;
+    const hideNav = ['/chat', '/interview', '/interview-room'].includes(location.pathname);
+    const hideFooter = ['/chat', '/interview', '/interview-room', '/login', '/register'].includes(location.pathname) || isDashboard || isResults;
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -53,6 +53,7 @@ function AppContent() {
 
                     <Route path="/interview" element={<InterviewScreen />} />
                     <Route path="/chat" element={<InterviewChat />} />
+                    <Route path="/interview-room" element={<InterviewChat />} />
                     <Route path="/results/:id" element={<Results />} />
                 </Routes>
             </main>

@@ -29,7 +29,7 @@ const StartInterview = () => {
                 session: res.data.session,
                 firstQuestion: res.data.firstQuestion
             }));
-            navigate('/chat');
+            navigate('/interview-room');
         } catch (err) {
             alert('Failed to start: ' + (err.response?.data?.error || err.response?.data?.message || err.message));
             setLoading(false);
