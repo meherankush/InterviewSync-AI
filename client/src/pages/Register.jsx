@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register as registerApi } from '../services/api';
+import { API_BASE_URL, register as registerApi } from '../services/api';
 import { ArrowRight, Mail, Lock, User, Sparkles } from 'lucide-react';
 
 const Register = () => {
@@ -20,7 +20,8 @@ const Register = () => {
             localStorage.setItem('token', res.data.token);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || err.message || 'Registration failed');
+            const message = err.response?.data?.message || err.message || 'Registration failed';
+            setError(err.response ? message : `${message}. API: ${API_BASE_URL}`);
             setLoading(false);
         }
     };

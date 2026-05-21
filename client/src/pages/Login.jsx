@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login as loginApi } from '../services/api';
+import { API_BASE_URL, login as loginApi } from '../services/api';
 import { ArrowRight, Mail, Lock, Zap } from 'lucide-react';
 
 const Login = () => {
@@ -19,7 +19,8 @@ const Login = () => {
             localStorage.setItem('token', res.data.token);
             navigate('/dashboard');
         } catch (err) {
-            setError(err.response?.data?.message || err.message || 'Login failed');
+            const message = err.response?.data?.message || err.message || 'Login failed';
+            setError(err.response ? message : `${message}. API: ${API_BASE_URL}`);
             setLoading(false);
         }
     };

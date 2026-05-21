@@ -16,12 +16,24 @@ const app = express();
 const httpServer = createServer(app);
 const allowedOrigins = [
     'http://localhost:5173',
+    'https://interview-sync-ai.vercel.app',
     process.env.CLIENT_URL,
 ].filter(Boolean);
+const isAllowedOrigin = (origin) => {
+    if (!origin) return true;
+    return allowedOrigins.includes(origin) || /^https:\/\/.*\.vercel\.app$/.test(origin);
+};
 
 // ✅ CORS FIX
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) {
+            callback(null, true);
+            return;
+        }
+
+        callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
 }));
 
@@ -38,7 +50,14 @@ app.get('/', (req, res) => {
 // ✅ SOCKET.IO CORS FIX
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigins,
+        origin: (origin, callback) => {
+            if (isAllowedOrigin(origin)) {
+                callback(null, true);
+                return;
+            }
+
+            callback(new Error('Not allowed by CORS'));
+        },
         methods: ['GET', 'POST'],
         credentials: true,
     },
