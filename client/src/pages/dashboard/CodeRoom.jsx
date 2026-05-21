@@ -4,6 +4,7 @@ import { Copy, DoorOpen, KeyRound, Link as LinkIcon, Play, Plus, Users, Wifi, Wi
 import { useSearchParams } from 'react-router-dom';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const languageOptions = [
     { value: 'javascript', label: 'JavaScript' },
@@ -198,7 +199,7 @@ const CodeRoom = ({ publicAccess = false }) => {
         setRunResult(null);
 
         try {
-            const response = await fetch(`${SOCKET_URL}/api/code/run`, {
+            const response = await fetch(`${API_URL}/code/run`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
