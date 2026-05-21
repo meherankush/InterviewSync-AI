@@ -1,121 +1,251 @@
-# InterviewAI - AI-Powered Mock Interview Platform
+# InterviewSync AI - AI-Powered Real-Time Interview Platform
 
-InterviewAI is a full-stack, AI-driven SaaS platform designed to help users prepare for technological and behavioral interviews. By utilizing Google Gemini's powerful language models, Speech-to-Text conversion, WebRTC for Webcam capabilities, and a comprehensive dashboard, it provides a realistic and strict environment for interview preparation.
+InterviewSync AI is a full-stack AI-powered interview preparation and real-time coding collaboration platform. It helps candidates practice technical and behavioral interviews through AI-driven questioning, live camera-enabled interview sessions, collaborative coding rooms, code execution, speech-to-text interaction, proctoring alerts, and performance analytics.
 
-## 🚀 Features
+The platform is designed to simulate a realistic coding interview environment where candidates can log in, start an interview, join collaborative code rooms, run code, receive AI feedback, and track progress through a secure dashboard.
 
-*   **Premium Light UI**: A high-impact, modern visual theme centered on clarity, glassmorphism, and smooth animations.
-*   **AI Evolution Grader**: Real-time evaluation of answers using Google Gemini's Pro models, assessing Technical Correctness, Clarity, and Communication.
-*   **Live Proctoring**: Simulates a strict interview room with WebRTC camera access and focus monitoring (tab-switch detection).
-*   **Speech-to-Text Engine**: Hands-free interactions using the Web Speech API for a realistic conversation flow.
-*   **Interactive Analytics**: Deep performance visualization with domain-wise proficiency charts and detailed progress history.
-*   **Secure Environment**: JWT-based authentication and strictly private session data storage.
-*   **Comprehensive Bank**: 300+ sample questions spanning DSA, Web Dev, ML, HR, Data Science, and DBMS.
+## Features
 
-## 🛠️ Tech Stack
+- **AI Interviewer**: Uses Google Gemini API to ask domain-specific interview questions and evaluate candidate responses.
+- **Real-Time Code Collaboration**: Socket.IO-powered coding rooms with shared room IDs, password-based access, live code syncing, participant tracking, and invite links.
+- **Run Code Support**: Execute JavaScript, Python, Java, and C++ code through the Judge0 API with stdin, stdout, compile output, runtime errors, status, time, and memory feedback.
+- **Camera-Enabled Interview Room**: Requires camera access during interview sessions and displays participant and interviewer tiles for a realistic interview-room experience.
+- **Live Proctoring**: Detects tab switching, missing face, multiple faces, and suspicious behavior during interview sessions.
+- **Speech-to-Text Interaction**: Uses the Web Speech API for voice-based answer input and natural interview flow.
+- **AI Evaluation and Feedback**: Evaluates technical correctness, clarity, depth, behavior, confidence, and communication quality.
+- **Dashboard and Analytics**: Tracks interview history, scores, alerts, domain-wise progress, and performance trends.
+- **Secure Authentication**: JWT-based authentication with bcrypt password hashing.
+- **Question Bank**: Includes seed data for DSA, Web Development, Machine Learning, Data Science, HR, and DBMS interview questions.
+- **Public Code Room Access**: Users can join a standalone code room from the home page using only a room ID and password.
 
-*   **Frontend**: React, Vite, Tailwind CSS, Recharts, Lucide React
-*   **Backend**: Node.js, Express, Mongoose
-*   **Database**: MongoDB
-*   **AI Engine**: Google Gemini API (@google/generative-ai)
-*   **Security**: bcryptjs, JSON Web Tokens (JWT)
+## Tech Stack
 
-## 📁 Project Structure
+**Frontend**
+- React
+- Vite
+- Tailwind CSS
+- React Router
+- Recharts
+- Lucide React
+- Socket.IO Client
+
+**Backend**
+- Node.js
+- Express.js
+- Socket.IO
+- Mongoose
+- JWT
+- bcryptjs
+
+**Database**
+- MongoDB / MongoDB Atlas
+
+**AI and Execution**
+- Google Gemini API
+- Judge0 API
+- Web Speech API
+- Browser MediaDevices API for camera access
+
+## Project Structure
 
 ```text
-interview-ai/
-├── client/                 # React Frontend
+interview-sync-ai/
+├── client/
+│   ├── public/
 │   ├── src/
-│   │   ├── components/     # Reusable UI components (Navbar)
-│   │   ├── pages/          # Screens (Dashboard, Interview, Results, etc.)
-│   │   ├── services/       # Axios API handlers
-│   │   ├── main.jsx        # App entry point
-│   │   └── index.css       # Tailwind base styles
+│   │   ├── components/
+│   │   ├── pages/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── CodeRoom.jsx
+│   │   │   │   ├── DashboardLayout.jsx
+│   │   │   │   ├── DashboardOverview.jsx
+│   │   │   │   └── StartInterview.jsx
+│   │   │   ├── InterviewChat.jsx
+│   │   │   ├── Landing.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   └── Results.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
 │   ├── index.html
 │   ├── vite.config.js
-│   └── tailwind.config.js
-└── server/                 # Express Backend
-    ├── config/             # DB configuration
-    ├── controllers/        # Route controllers (Auth, Interview logic)
-    ├── middleware/         # Custom Middlewares (JWT protection)
-    ├── models/             # Mongoose schemas (User, Session, Question, Answer)
-    ├── routes/             # API routing
-    ├── seed.js             # Initial database seed script
-    ├── server.js           # Server entry point
-    └── .env                # Environment parameters
+│   ├── tailwind.config.js
+│   └── vercel.json
+└── server/
+    ├── config/
+    │   └── db.js
+    ├── controllers/
+    │   ├── authController.js
+    │   ├── codeController.js
+    │   └── interviewController.js
+    ├── middleware/
+    │   └── auth.js
+    ├── models/
+    │   ├── Answer.js
+    │   ├── InterviewSession.js
+    │   ├── Question.js
+    │   └── User.js
+    ├── routes/
+    │   ├── authRoutes.js
+    │   ├── codeRoutes.js
+    │   └── interviewRoutes.js
+    ├── seed.js
+    ├── server.js
+    └── .env.example
 ```
 
-## ⚙️ Setup and Installation
+## Setup and Installation
 
 ### Prerequisites
 
-*   Node.js installed (v16+)
-*   MongoDB installed locally or a MongoDB Atlas URI
-*   An active Google Gemini API Key
+- Node.js v16 or higher
+- MongoDB local database or MongoDB Atlas connection URI
+- Google Gemini API key
+- Judge0 API URL or API key if using a hosted Judge0 provider
 
-### 1. Clone & Install Dependencies
+### 1. Clone the Repository
 
-Open a terminal and install dependencies for both `server` and `client`.
+```bash
+git clone <your-repository-url>
+cd Ai-Interview-Platform-
+```
 
-**Server:**
+### 2. Install Dependencies
+
+Install backend dependencies:
+
 ```bash
 cd server
 npm install
 ```
 
-**Client:**
+Install frontend dependencies:
+
 ```bash
-cd client
+cd ../client
 npm install
 ```
 
-### 2. Configure Environment Variables
+### 3. Configure Environment Variables
 
-**Backend (`server/.env`):**
-Rename `.env.example` to `.env` or create a new `.env` file in the `server` directory.
+Create `server/.env`:
+
 ```env
 PORT=5000
+CLIENT_URL=http://localhost:5173
 MONGO_URI=mongodb://localhost:27017/interview-ai
 JWT_SECRET=your_super_secret_jwt_key
 GEMINI_API_KEY=your_gemini_api_key_here
+JUDGE0_API_URL=https://ce.judge0.com
+JUDGE0_API_KEY=
 ```
 
-**Frontend (`client/.env`):**
-Rename `.env.example` to `.env` or create a new `.env` file in the `client` directory.
+Create `client/.env`:
+
 ```env
 VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
 ```
 
-### 3. Seed the Database
+### 4. Seed the Database
 
-Populate your MongoDB database with over 300 sample questions spanning multiple domains.
+Run the seed command inside the `server` directory:
+
 ```bash
-# Inside the server directory
+cd server
 npm run seed
 ```
 
-### 4. Run the Application
+This populates MongoDB with sample interview questions across multiple domains.
 
-**Start the Backend Server:**
+### 5. Run the Application
+
+Start the backend:
+
 ```bash
-# Inside the server directory
+cd server
 npm run dev
-# The backend will run on http://localhost:5000
 ```
 
-**Start the Frontend Vite Server:**
-```bash
-# Inside the client directory
-npm run dev
-# The frontend will run on http://localhost:5173
+The backend runs on:
+
+```text
+http://localhost:5000
 ```
 
-## 📸 Screenshots & Usage
-1. **Register / Login**: Create an account to access the dashboard.
-2. **Dashboard**: View your past attempt metrics and score trends.
-3. **Start Interview**: Select a domain and duration (10 or 15 mins).
-4. **Interview Screen**: Wait for access to the camera, read the question, speak your answer or type it out, and submit. Avoid switching tabs!
-5. **Results**: Review the detailed AI-generated feedback and your score out of 10.
+Start the frontend:
 
-## 📝 License
-This project is for educational and portfolio purposes.
+```bash
+cd client
+npm run dev
+```
+
+The frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+## Main Routes
+
+```text
+/                         Home page
+/register                 User registration
+/login                    User login
+/dashboard                Authenticated dashboard
+/dashboard/start          Start an AI interview session
+/interview-room           Camera-enabled AI interview room
+/dashboard/code-room      Authenticated collaborative coding room
+/code-room                Public code room entry without login
+/results/:id              Interview result and feedback page
+```
+
+## Deployment Notes
+
+### Frontend on Vercel
+
+Set these environment variables in Vercel:
+
+```env
+VITE_API_URL=https://your-backend-url/api
+VITE_SOCKET_URL=https://your-backend-url
+```
+
+Do not add `/api` to `VITE_SOCKET_URL`.
+
+### Backend on Render/Railway
+
+Set these environment variables in your backend hosting service:
+
+```env
+PORT=5000
+CLIENT_URL=https://your-frontend-url
+MONGO_URI=your_mongodb_atlas_uri
+JWT_SECRET=your_super_secret_jwt_key
+GEMINI_API_KEY=your_gemini_api_key
+JUDGE0_API_URL=https://ce.judge0.com
+JUDGE0_API_KEY=
+```
+
+After updating environment variables, redeploy both frontend and backend.
+
+## Usage Flow
+
+1. Register or log in to access the dashboard.
+2. Start a new interview by selecting a domain and duration.
+3. Allow camera access to enter the interview room.
+4. Answer AI-generated technical or behavioral questions using text or speech.
+5. Use the collaborative code room for coding interview practice.
+6. Run code directly from the room and view output or errors.
+7. Review performance, alerts, and feedback in the dashboard/results section.
+
+## Resume Summary
+
+InterviewSync AI is an AI-powered real-time collaborative interview platform built with React, Node.js, Express, MongoDB, Socket.IO, Google Gemini API, and Judge0. It supports live coding rooms, code execution, camera-enabled interview sessions, speech-to-text answers, AI-based evaluation, proctoring alerts, JWT authentication, and performance analytics.
+
+## License
+
+This project is built for educational, research, and portfolio purposes.
