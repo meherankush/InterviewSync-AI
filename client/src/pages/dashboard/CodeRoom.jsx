@@ -15,26 +15,38 @@ const languageOptions = [
 
 const snippets = {
     javascript: [
+        { trigger: 'main', label: 'Node.js starter', code: 'function main() {\n  \n}\n\nmain();' },
         { trigger: 'fun', label: 'function declaration', code: 'function solve() {\n  \n}' },
         { trigger: 'for', label: 'for loop', code: 'for (let i = 0; i < n; i += 1) {\n  \n}' },
+        { trigger: 'if', label: 'if statement', code: 'if (condition) {\n  \n}' },
+        { trigger: 'arr', label: 'array declaration', code: 'const arr = [];' },
         { trigger: 'map', label: 'Map initialization', code: 'const map = new Map();' },
         { trigger: 'log', label: 'console output', code: 'console.log(result);' },
     ],
     python: [
+        { trigger: 'main', label: 'Python main guard', code: 'def main():\n    \n\nif __name__ == "__main__":\n    main()' },
         { trigger: 'def', label: 'function declaration', code: 'def solve():\n    pass' },
         { trigger: 'for', label: 'for loop', code: 'for i in range(n):\n    pass' },
+        { trigger: 'if', label: 'if statement', code: 'if condition:\n    pass' },
+        { trigger: 'while', label: 'while loop', code: 'while condition:\n    pass' },
+        { trigger: 'list', label: 'list input', code: 'nums = list(map(int, input().split()))' },
         { trigger: 'inp', label: 'read input', code: 'n = int(input())' },
         { trigger: 'print', label: 'print output', code: 'print(result)' },
     ],
     java: [
         { trigger: 'publ', label: 'Java main class', code: 'public class Main {\n    public static void main(String[] args) {\n        \n    }\n}' },
         { trigger: 'main', label: 'main method', code: 'public static void main(String[] args) {\n    \n}' },
+        { trigger: 'class', label: 'class declaration', code: 'class Solution {\n    \n}' },
+        { trigger: 'for', label: 'for loop', code: 'for (int i = 0; i < n; i++) {\n    \n}' },
+        { trigger: 'arr', label: 'array declaration', code: 'int[] arr = new int[n];' },
         { trigger: 'scan', label: 'Scanner input', code: 'Scanner sc = new Scanner(System.in);' },
         { trigger: 'sout', label: 'System.out.println', code: 'System.out.println(result);' },
     ],
     cpp: [
+        { trigger: 'main', label: 'C++ main function', code: 'int main() {\n    \n    return 0;\n}' },
         { trigger: 'inc', label: 'C++ starter', code: '#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    \n    return 0;\n}' },
         { trigger: 'for', label: 'for loop', code: 'for (int i = 0; i < n; i++) {\n    \n}' },
+        { trigger: 'if', label: 'if statement', code: 'if (condition) {\n    \n}' },
         { trigger: 'vec', label: 'vector declaration', code: 'vector<int> nums(n);' },
         { trigger: 'cout', label: 'cout output', code: 'cout << result << endl;' },
     ],
@@ -366,14 +378,14 @@ const CodeRoom = ({ publicAccess = false }) => {
                                     placeholder="Start coding here..."
                                 />
                                 {recommendations.length > 0 && (
-                                    <div className="absolute bottom-4 left-5 right-5 rounded-2xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl">
+                                    <div className="absolute left-5 top-14 w-[min(34rem,calc(100%-2.5rem))] rounded-2xl border border-slate-700 bg-slate-900/95 p-3 shadow-2xl">
                                         <div className="mb-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Recommendations</div>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="space-y-2">
                                             {recommendations.map((recommendation) => (
                                                 <button
                                                     key={`${recommendation.trigger}-${recommendation.label}`}
                                                     onClick={() => insertRecommendation(recommendation)}
-                                                    className="rounded-xl bg-slate-800 px-3 py-2 text-left font-mono text-xs text-slate-100 transition-colors hover:bg-indigo-600"
+                                                    className="block w-full rounded-xl bg-slate-800 px-3 py-2 text-left font-mono text-xs text-slate-100 transition-colors hover:bg-indigo-600"
                                                 >
                                                     <span className="font-bold">{recommendation.trigger}</span>
                                                     <span className="ml-2 text-slate-400">{recommendation.label}</span>
