@@ -109,7 +109,7 @@ interview-sync-ai/
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone <https://github.com/meherankush/InterviewSync-AI.git>
 cd Ai-Interview-Platform-
 ```
 
@@ -210,19 +210,19 @@ http://localhost:5173
 Set these environment variables in Vercel:
 
 ```env
-VITE_API_URL=https://your-backend-url/api
-VITE_SOCKET_URL=https://your-backend-url
+VITE_API_URL=https://interview-sync-ai.vercel.app/api
+VITE_SOCKET_URL=https://interview-backend-w8yc.onrender.com
 ```
 
 Do not add `/api` to `VITE_SOCKET_URL`.
 
-### Backend on Render/Railway
+### Backend on Render
 
 Set these environment variables in your backend hosting service:
 
 ```env
 PORT=5000
-CLIENT_URL=https://your-frontend-url
+CLIENT_URL=https://interview-sync-ai.vercel.app/
 MONGO_URI=your_mongodb_atlas_uri
 JWT_SECRET=your_super_secret_jwt_key
 GEMINI_API_KEY=your_gemini_api_key
