@@ -106,7 +106,7 @@ const Login = () => {
                             <div className="space-y-1.5">
                                 <div className="flex justify-between items-center ml-1">
                                     <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Password</label>
-                                    <button type="button" className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 tracking-widest uppercase">Lost access?</button>
+                                    <Link to="/forgot-password" className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 tracking-widest uppercase">Forgot password?</Link>
                                 </div>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

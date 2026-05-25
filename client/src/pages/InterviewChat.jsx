@@ -22,6 +22,10 @@ const InterviewChat = () => {
     const [language, setLanguage] = useState('javascript');
     const [cameraReady, setCameraReady] = useState(false);
     const [cameraError, setCameraError] = useState('');
+    const [questionType, setQuestionType] = useState('voice');
+    const [mcqOptions, setMcqOptions] = useState([]);
+    const [selectedOption, setSelectedOption] = useState('');
+    const [outputSnippet, setOutputSnippet] = useState('');
 
     const [showAlert, setShowAlert] = useState(false);
     const [alertMsg, setAlertMsg] = useState('');
@@ -119,7 +123,7 @@ const InterviewChat = () => {
         setSession(parsed.session);
         sessionRef.current = parsed.session;
         setTimeLeft(parsed.session.duration * 60);
-        setMessages([{ role: 'assistant', content: parsed.firstQuestion }]);
+        setMessages([{ role: 'assistant', content: parsed.firstQuestion, questionType: 'voice' }]);
         speakText(parsed.firstQuestion);
 
         let faceModel = null;
@@ -222,9 +226,10 @@ const InterviewChat = () => {
     }, [messages]);
 
     const handleSendMessage = async () => {
-        if ((!inputText.trim() && !code.trim()) || loading) return;
+        const mcqAnswer = questionType === 'mcq' ? selectedOption : '';
+        if ((!inputText.trim() && !code.trim() && !mcqAnswer) || loading) return;
 
-        const userMsg = inputText.trim();
+        const userMsg = mcqAnswer || inputText.trim();
         const currentCode = code;
 
         const fullUserMessage = isCodingMode
@@ -232,6 +237,7 @@ const InterviewChat = () => {
             : userMsg;
 
         setInputText('');
+        setSelectedOption('');
         setMessages((prev) => [...prev, {
             role: 'user',
             content: userMsg,
@@ -248,12 +254,18 @@ const InterviewChat = () => {
 
             const data = res.data;
             const aiReply = data.reply + " " + (data.next_question || "");
+            const nextType = data.question_type || (data.is_coding ? 'coding' : 'voice');
+
+            setQuestionType(nextType);
+            setMcqOptions(Array.isArray(data.options) ? data.options : []);
+            setOutputSnippet(data.code_snippet || '');
 
             if (data.is_coding) {
                 setIsCodingMode(true);
                 setCodingTopic(data.coding_topic || "Technical Task");
                 setCode(data.initial_code || "");
-                if (session.domain.toLowerCase().includes('sql')) setLanguage('sql');
+                if (data.language) setLanguage(data.language);
+                else if (session.domain.toLowerCase().includes('sql')) setLanguage('sql');
                 else if (session.domain.toLowerCase().includes('java')) setLanguage('java');
                 else if (session.domain.toLowerCase().includes('python')) setLanguage('python');
                 else setLanguage('javascript');
@@ -261,7 +273,14 @@ const InterviewChat = () => {
                 setIsCodingMode(false);
             }
 
-            setMessages((prev) => [...prev, { role: 'assistant', content: aiReply }]);
+            setMessages((prev) => [...prev, {
+                role: 'assistant',
+                content: aiReply,
+                questionType: nextType,
+                options: Array.isArray(data.options) ? data.options : [],
+                codeSnippet: data.code_snippet || '',
+                language: data.language || language
+            }]);
             speakText(aiReply);
 
         } catch (err) {
@@ -478,6 +497,25 @@ const InterviewChat = () => {
                                                 <pre className="text-indigo-200/90">{msg.codeSnippet}</pre>
                                             </div>
                                         )}
+
+                                        {msg.questionType === 'mcq' && msg.options?.length > 0 && (
+                                            <div className="mt-5 grid gap-2">
+                                                {msg.options.map((option, optionIndex) => (
+                                                    <div key={`${idx}-${optionIndex}`} className="rounded-2xl border border-indigo-100 bg-indigo-50/50 px-4 py-3 text-sm font-bold text-slate-700">
+                                                        {String.fromCharCode(65 + optionIndex)}. {option}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {msg.questionType === 'output' && msg.codeSnippet && (
+                                            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                                                <div className="mb-3 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                                                    Predict the output {msg.language ? `(${msg.language})` : ''}
+                                                </div>
+                                                <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-emerald-200">{msg.codeSnippet}</pre>
+                                            </div>
+                                        )}
                                         
                                         <div className={`absolute -bottom-6 flex items-center gap-2 ${msg.role === 'user' ? 'right-1' : 'left-1'}`}>
                                             <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">
@@ -512,6 +550,30 @@ const InterviewChat = () => {
                 {/* User Input Module */}
                 <div className="p-8 border-t border-slate-100 bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                     <div className="mx-auto max-w-4xl relative">
+                        {questionType === 'mcq' && mcqOptions.length > 0 && (
+                            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {mcqOptions.map((option, optionIndex) => (
+                                    <button
+                                        key={option}
+                                        onClick={() => setSelectedOption(`${String.fromCharCode(65 + optionIndex)}. ${option}`)}
+                                        className={`rounded-2xl border px-4 py-3 text-left text-sm font-bold transition-all ${selectedOption.includes(option)
+                                            ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                                            : 'border-slate-100 bg-slate-50 text-slate-600 hover:border-indigo-200 hover:bg-white'
+                                            }`}
+                                    >
+                                        {String.fromCharCode(65 + optionIndex)}. {option}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {questionType === 'output' && outputSnippet && (
+                            <div className="mb-4 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                                <div className="mb-2 text-[9px] font-black uppercase tracking-widest text-slate-500">Output-based question</div>
+                                <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-emerald-200">{outputSnippet}</pre>
+                            </div>
+                        )}
+
                         <div className="relative flex items-end gap-4 bg-slate-50/50 rounded-3xl p-2.5 border border-slate-100 focus-within:border-indigo-200 focus-within:bg-white focus-within:shadow-xl focus-within:shadow-indigo-50/50 transition-all duration-300">
                             <textarea
                                 rows="1"
@@ -523,7 +585,11 @@ const InterviewChat = () => {
                                         handleSendMessage();
                                     }
                                 }}
-                                placeholder={isListening ? (interimSpeech || "Awaiting your voice...") : "Frame your answer here..."}
+                                placeholder={questionType === 'mcq'
+                                    ? (selectedOption || 'Select one option above, or explain your choice...')
+                                    : questionType === 'output'
+                                        ? 'Type the expected output and explain briefly...'
+                                        : isListening ? (interimSpeech || "Awaiting your voice...") : "Frame your answer here..."}
                                 className="flex-grow bg-transparent border-none px-5 py-3.5 focus:ring-0 outline-none transition-all resize-none font-medium text-slate-700 min-h-[52px] text-base placeholder:text-slate-300"
                             />
                             <div className="flex gap-2 items-center pr-3 pb-2">
@@ -539,8 +605,8 @@ const InterviewChat = () => {
                                 </button>
                                 <button
                                     onClick={handleSendMessage}
-                                    disabled={loading || (!inputText.trim() && !code.trim())}
-                                    className={`pl-5 pr-7 py-3 rounded-2xl shadow-xl transition-all duration-300 active:scale-95 flex items-center gap-3 ${loading || (!inputText.trim() && !code.trim())
+                                    disabled={loading || (!inputText.trim() && !code.trim() && !selectedOption)}
+                                    className={`pl-5 pr-7 py-3 rounded-2xl shadow-xl transition-all duration-300 active:scale-95 flex items-center gap-3 ${loading || (!inputText.trim() && !code.trim() && !selectedOption)
                                         ? 'bg-slate-100 text-slate-300 shadow-none'
                                         : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-100 hover:shadow-indigo-200'
                                         }`}

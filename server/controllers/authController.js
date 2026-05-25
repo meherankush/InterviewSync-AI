@@ -46,3 +46,27 @@ export const authUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.json({
+                message: 'If this email is registered, reset instructions will be available shortly.'
+            });
+        }
+
+        res.json({
+            message: 'Password reset email service is not configured yet. Please contact the administrator to reset this account.'
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

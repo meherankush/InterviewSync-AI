@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import Results from './pages/Results';
 import InterviewScreen from './pages/InterviewScreen';
 import InterviewChat from './pages/InterviewChat';
@@ -28,7 +29,7 @@ function AppContent() {
     const isDashboard = location.pathname.startsWith('/dashboard');
     const isResults = location.pathname.startsWith('/results');
     const hideNav = ['/chat', '/interview', '/interview-room'].includes(location.pathname);
-    const hideFooter = ['/chat', '/interview', '/interview-room', '/login', '/register'].includes(location.pathname) || isDashboard || isResults;
+    const hideFooter = ['/chat', '/interview', '/interview-room', '/login', '/register', '/forgot-password'].includes(location.pathname) || isDashboard || isResults;
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -38,6 +39,7 @@ function AppContent() {
                     <Route path="/" element={<Landing />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/code-room" element={<CodeRoom publicAccess />} />
 
                     {/* Nested Dashboard Routes */}

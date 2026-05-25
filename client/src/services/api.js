@@ -16,6 +16,7 @@ API.interceptors.request.use((req) => {
 
 export const login = (data) => API.post('/auth/login', data);
 export const register = (data) => API.post('/auth/register', data);
+export const forgotPassword = (data) => API.post('/auth/forgot-password', data);
 
 export const getDashboardInfo = () => API.get('/interview/dashboard');
 export const getInterviewDetails = (id) => API.get(`/interview/${id}`);

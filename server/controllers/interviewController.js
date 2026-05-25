@@ -210,12 +210,19 @@ export const chatInterview = async (req, res) => {
 Rules:
 - Ask domain-related questions only.
 - Current progress: Question ${currentQ + 1} of ${totalQuestions}.
-${isNearEnd ? `- We are near the end. You MUST ask a practical coding task or a database query task now based on the domain.` : `- Ask conceptual or technical questions based on the domain.`}
+- Ask a mix of question types across the session:
+  1. "voice" for spoken/text explanation questions.
+  2. "mcq" for multiple-choice concept checks with exactly 4 options.
+  3. "output" for predict-the-output questions using a short code snippet.
+  4. "coding" for practical coding tasks near the end.
+${isNearEnd ? `- We are near the end. Prefer a practical "coding" or "output" task based on the domain.` : `- Rotate between "voice", "mcq", and "output" questions.`}
 - Ask 1 follow-up question per main answer if needed.
 - Evaluate user's answer for technical correctness, clarity, and depth.
 - Also evaluate user's "Behavior & Emotion" based on their response. Detect if they are: confident, confused, frustrated, calm, or descriptive.
 - In "behavior_feedback", provide short advice on how they can improve their presentation/persona.
 - Maintain professional tone.
+- For MCQ questions, put the question in next_question and provide options as an array of 4 strings.
+- For output questions, put the question in next_question, provide code_snippet, and set language.
 
 Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
 {
@@ -228,8 +235,12 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
   "emotion": "string (e.g. 'Calm', 'Confused', 'Confident', 'Hesitant')",
   "behavior_feedback": "string (short advice on personality improvement)",
   "next_question": "next main question if applicable",
+  "question_type": "voice | mcq | output | coding",
+  "options": ["A", "B", "C", "D"],
+  "code_snippet": "short code snippet for output questions",
   "is_coding": boolean,
   "coding_topic": "string",
+  "language": "javascript | python | java | cpp",
   "initial_code": "string"
 }`;
 
@@ -303,7 +314,11 @@ Return JSON ONLY (no markdown markup, no backticks, just raw JSON):
             next_question: aiResponse.next_question,
             totalScore: session.totalScore,
             personality: session.personalityDevelopment,
-            is_coding: aiResponse.is_coding || false,
+            question_type: aiResponse.question_type || (aiResponse.is_coding ? "coding" : "voice"),
+            options: Array.isArray(aiResponse.options) ? aiResponse.options.slice(0, 4) : [],
+            code_snippet: aiResponse.code_snippet || "",
+            language: aiResponse.language || "",
+            is_coding: aiResponse.is_coding || aiResponse.question_type === "coding" || false,
             coding_topic: aiResponse.coding_topic || "",
             initial_code: aiResponse.initial_code || ""
         });
