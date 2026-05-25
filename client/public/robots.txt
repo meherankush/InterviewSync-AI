@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /interview-room
+
+Sitemap: https://interview-sync-ai.vercel.app/sitemap.xml
